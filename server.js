@@ -43,8 +43,13 @@ const requireAuth = (req,res,next) => {
 // ─────────────────────────────────────────────────────────────
 // FILE-BASED STORES
 // ─────────────────────────────────────────────────────────────
-const USERS_FILE   = path.join(__dirname, "users.json");
-const PENDING_FILE = path.join(__dirname, "pending.json");
+// DATA_DIR: uses /app/data when DATA_DIR env var set (Railway volume), else local __dirname
+const DATA_DIR     = process.env.DATA_DIR || __dirname;
+const USERS_FILE   = path.join(DATA_DIR, "users.json");
+const PENDING_FILE = path.join(DATA_DIR, "pending.json");
+
+// Ensure data directory exists (important when volume is mounted)
+if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 
 const loadUsers   = () => { try { return JSON.parse(fs.readFileSync(USERS_FILE,"utf8")); } catch { return {}; } };
 const saveUsers   = u  => fs.writeFileSync(USERS_FILE, JSON.stringify(u,null,2));
